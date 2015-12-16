@@ -1,0 +1,314 @@
+///Project #9 // squids.jave ///
+///Matthew Testa///
+
+int many=5;
+Squid school[]= new Squid[many];
+String names[]= { "one", "two", "three", "four", "five" };
+float spacing;
+int several=4;
+float boatSeperate;
+
+Boat bounty= new Boat();
+Boat fleet[]= new Boat[several];
+
+float surface;
+float moonX=0, moonY=100;
+int score=0;
+
+//// SETUP: SIZE AND RESET ////
+void setup() {
+  size(950, 600);
+  spacing= width/( many+1 );
+  boatSeperate= width/( several+2 );
+  reset();
+}
+  
+  void reset() {
+    surface= random( height/4, height/2 );
+    moonY= surface/3;
+    moonY= random( 200, surface+150);
+    //squids//
+    float x= spacing;
+    for ( int i=0; i<many; i++ ) {
+      school[i]= new Squid( names[i], x );
+      x += spacing;
+    }
+     //boats//
+    float boatx= spacing;
+    for ( int i=0; i<several; i++ ) {
+      fleet[i]= new Boat(i, boatx);
+      boatx += boatSeperate;
+    }
+  }   
+
+void draw() {
+  scene();
+  show();
+  if (key >='A' && key <= 'Z') {
+    boatReport( 50, fleet, several ); //reports//
+    fishReport( surface+50, school, school.length );
+  } else action();
+  messages();
+}
+
+void messages() {
+  fill(20);
+  text( "Matt Testa: Squid 9", 10, height-10 );
+  fill(15);
+  text( "Squids & Boats", width/2, height-40 );
+  if (score>0) text( "SCORE" +score, width*5/8, 20 );
+  }
+  
+void scene() {
+  background( 0 ); //sky//
+  
+  if ( moonX > width+100 ) { //moon//
+    moonX = -50;
+    moonY = random( 100, surface+50 );
+  }
+  moonX += 1; 
+  fill( 255,255,255 );
+  ellipse( moonX, moonY-150*sin( PI * moonX/width), 60, 60 );
+  //color of water//
+  fill(100,80,200);
+  noStroke();
+  rect( 0,surface, width, height-surface );
+}
+  
+  void action() { //boat & squid movement//
+  
+ for ( int i=0; i<many; i++ ) {   //squid//
+   school[i].move();
+ }
+ for (int i=0; i<several; i++ ) {
+   fleet[i].move();
+ }
+ bounty.move();
+  }
+ 
+ void show() {
+    float x= spacing;
+    for ( int i=0; i<many; i++ ) {
+      school[i].x= x;
+      x += spacing;
+      school[i].show();
+    }
+    for ( int i=0; i<several; i++ ) {
+      fleet[i].show();
+    }
+    bounty.show();
+ }
+ 
+//report structure//
+void boatReport( float top, Boat[]b, int many ) { //boat report//
+  fill(255, 180, 140 );
+  rect( 50, top, width-100, 50 + 20*many);
+  float x=60, y=top+30;
+  fill( 255,255,255 ); //labels//
+  text( "BOAT", x+20, y );
+  text( "CARGO", x+70, y );
+  text( "x", x+105, y );
+  text( "dx", x+205, y );
+  fill(0);
+  for( int i=0;i<many;i++) {
+  
+  y += 15;
+  text( i, x, y );
+  text( b[i].name, x+20, y );
+  text( b[i].cargo, x+70, y );
+  text(b[i].x, x+100, y );
+  text(b[i].dx, x+200, y );
+  }
+}
+void fishReport( float top, Squid[]a, int many ) {
+  fill(255, 180, 140 );
+  rect( 50, top, width-100, 50 + 20*many);
+  float x=60, y=top+30;
+  fill( 255,255,255 ); //labels//
+  text( "FISH", x+20, y );
+  text( "LEGS", x+70, y );
+  text( "x", x+105, y );
+  text( "dx", x+205, y );
+  text( "dy", x+305, y );
+  fill(0);
+  for (int i=0; i<many; i++) {
+  y += 15;
+  text( 1, x, y );
+  text( a[i].name, x+20, y );
+  text( a[i].legs, x+70, y );
+  text(a[i].x, x+100, y );
+  text(a[i].dx, x+200, y );
+  text(a[i].dy, x+300, y);
+  }
+}
+ 
+ 
+ void keyPressed() {
+   if ( key=='r' ) reset(); //reset button//
+   if ( key=='0' ) school[0].bottom(); //send to bottom//
+   if ( key=='1' ) school[1].bottom(); //send to bottom//
+   if ( key=='2' ) school[2].bottom(); //send to bottom//
+   if ( key=='3' ) school[3].bottom(); //send to bottom//
+   
+   if ( key=='h' ) {
+     int k=0;
+     for ( int i=1; many<i; i++ ) {
+       if (school[i].y < school[k].y ) k=i; //sends highest to bottom//
+     }
+    school[k].bottom();
+   }
+    
+   if( key=='b' ) {
+     for ( int k=0; k<many; k++ ) {
+      school[k].bottom();
+    }
+   }
+   
+   if( key=='t') {
+     for (int k=0; k<many; k++ ) {
+       school[k].y= surface+10;
+       school[k].dy= -0.1;
+     }
+    }
+   }
+  
+
+
+///Squids OBJECT//
+class Squid {
+  float x,y;
+  float dx=0, dy=0;
+  float w=50, h=50;
+  int legs=8;
+  String name="";
+  float r,g,b;
+  int count=0;
+ ////COLOR AND NAME////
+ Squid( String s, float x) {
+ this.name= s;
+ bottom();
+ this.x=x;
+ ///color///
+ r= random ( 200,80 );
+ g= random ( 160, 120 );
+ b= random (120, 140 );
+ }
+ 
+ //start from bottom and set random speed//
+ void bottom() {
+   y= height - h;
+   dy= -random ( 0.1, 0.9 );
+   legs= int( random ( 1, 10.9 ) );
+ }
+
+//////MOVE AND SHOW METHOD////
+  void move() {
+    x += dx;
+    y += dy;
+    if ( y>height ) {
+      bottom();
+      count++;
+    }
+    else if ( y<surface ) {
+      bottom(); //descenting speed//
+    }
+  }
+ ////DISPLAY SQUID//////
+  void show() {
+    fill( r,g,b );
+    stroke( r,g,b );
+    ellipse( x,y,w,h );
+    rect( x-w/2, y, w, h/2 );
+    fill(255);
+    float blink=10;
+    if ( y%100 > 80 ) blink=2;
+    ellipse( x, y-h/4, 8, blink ); //eye//
+    //next//
+    fill( r,b,g );
+    float legX= x-w/2, foot=0;  //legs and movement of legs//
+    foot= dy>0 ? 0 : ( y%40 > 20 ) ? 6 : -6;
+    strokeWeight(2);
+    for ( int i=0; i<legs; i++ ) {
+      line( legX, y+h/2, legX+foot, 20+y+h/2 );
+      legX +=w / ( legs-1 );
+    }
+      
+      strokeWeight( 2 );
+      fill( 200, 200, 0 );
+      text( name, x-w/2, y-6+h/2 );
+      fill( 0 );
+      text( legs, x+2-w/2, y+h/2 );
+      fill( 190 );
+      if ( count>0 ) text( count, x, y+h/2 );
+  }
+      ///return back to bottom if true//
+      boolean hit( float xx, float yy ) {
+        return dist( xx, yy, x,y ) < h;
+      }
+}
+  
+  
+class Boat {    
+   float x=0, y=surface, dx=5;
+   int cargo=0, caught=0;
+   String name="";
+ 
+Boat( int i, float x ) {
+   this.x=x;
+   name=""+i;
+}
+
+ Boat() {
+ }
+
+void move() {
+     int caught=0;
+     for ( int i=0; i<many; i++ ) { 
+       if (school[i].hit( x, surface ) ) {
+         caught += school[i].legs;
+       }
+     }
+       cargo += caught;
+     //direction of movement//
+     x += dx;
+     if( caught>0 ) x += 2*dx;
+     if ( x<0 ); {
+       score += cargo;
+       cargo = 0;
+       dx = random (1, 4);
+     }
+     if ( x>width ); {
+       dx = -random( 1, 4 ); //return with same speed//
+     }
+   }
+
+  //boat//
+  void show() {
+    fill( 200, 170, 190 );
+    noStroke();
+    rect( x, surface-20, 60, 20 );
+    if (dx>0) triangle( x+50, surface, x+50, surface-20, x+70, surface-20 );
+    else      triangle( x, surface, x,surface-20, x-20, surface-20);
+    rect( x+12, surface-30, 35, 10 ); //cabin//
+    rect( x+30, surface-40, 15, 50 ); //mast//
+    //display name and cargo//
+    fill( 255 );
+    text( name, x+5, surface-10 );
+    if( cargo>0 ) text( cargo, x+10, surface-20 );  
+  }
+}
+ 
+    
+    
+   
+    
+ 
+  
+  
+
+    
+ 
+  
+  
+  
+  
